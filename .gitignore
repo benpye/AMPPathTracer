@@ -6,3 +6,6 @@
 # Ignore binary files...
 /Debug/**
 /Release/**
+
+/AMPPathTracer/Debug/**
+/AMPPathTracer/Release/**

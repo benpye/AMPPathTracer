@@ -70,7 +70,7 @@ int main(int argc, char **argv)
 	}
 
 	//array_view<int, 1> pixelBuffer(width * height, cpuBuffer);
-    texture<int, 2> pixelBuffer(height, width, 32U);
+	texture<int, 2> pixelBuffer(height, width, 32U);
 	array<Vector3, 1> accumulation(width * height);
 	array<LCGRandom, 1> randomNumbers(width * height, random);
 	array<Coord, 1> screenPos(width * height, screenCoords);
@@ -153,7 +153,7 @@ int main(int argc, char **argv)
 	cam.FocalPoint = 10.0f;
 	cam.Aperture = 0.01f;
 
-    float contributionThreshold = 0.0f;
+	float contributionThreshold = 0.0f;
 
 	auto resetRender = [&](){ totaltime = 0; iteration = 0; };
 
@@ -206,7 +206,7 @@ int main(int argc, char **argv)
 		iteration++;
 
 		parallel_for_each(
-            randomNumbers.extent,
+			randomNumbers.extent,
 			[=, &randomNumbers, &screenPos, &accumulation, &pixelBuffer](index<1> idx) restrict(amp)
 		{
 			Vector3 color;
@@ -230,7 +230,7 @@ int main(int argc, char **argv)
 
 			color = color * 255.0f;
 
-            pixelBuffer.set(index<2>(screenPos[idx].Y, screenPos[idx].X), ConstructColor(
+			pixelBuffer.set(index<2>(screenPos[idx].Y, screenPos[idx].X), ConstructColor(
 				(int) color.X,
 				(int) color.Y,
 				(int) color.Z,
@@ -238,7 +238,7 @@ int main(int argc, char **argv)
 		}
 		);
 
-        copy(pixelBuffer, cpuBuffer);
+		copy(pixelBuffer, cpuBuffer);
 
 		pixelTexture.update((sf::Uint8 *)cpuBuffer);
 
@@ -261,7 +261,7 @@ int main(int argc, char **argv)
 				<< "Runtime: " << totaltime / 1000000.0f << "s\n"
 				<< "Toggle Debug Overlay (O)\n"
 				<< "Recursions (CV): " << bounces << "\n"
-                << "Contribution Threshold (UI): " << contributionThreshold << "\n"
+				<< "Contribution Threshold (UI): " << contributionThreshold << "\n"
 				<< "Camera Origin (WASD): " << cam.Origin.ToString() << "\n"
 				<< "Camera Direction (Arrow Keys): " << cam.Forward.ToString() << "\n"
 				<< "Camera Aperture (TY): " << cam.Aperture << "\n"
