@@ -1,0 +1,8 @@
+ Ignore project files in the root
+*.opensdf
+*.sdf
+*.suo
+
+# Ignore binary files...
+/Debug/**
+/Release/**
