@@ -10,9 +10,9 @@ struct Material
 {
 	Material() restrict(amp, cpu)
 	{
-		Emission = Vector3();
-		DiffuseColor = Vector3();
-		SpecularColor = Vector3(1.0f);
+		Emission = { 0.0f, 0.0f, 0.0f };
+		DiffuseColor = { 0.0f, 0.0f, 0.0f };
+		SpecularColor = { 1.0f, 1.0f, 1.0f };
 		Reflectivity = 0.0;
 		Transmittance = 0.0;
 		RefractiveIndex = 1.0;
@@ -44,15 +44,39 @@ struct Material
 
 struct Ray
 {
-	Ray(Vector3 origin, Vector3 direction) restrict(amp, cpu)
-	{
-		Origin = origin;
-		Direction = direction;
-	}
-
 	Vector3 Origin;
 	Vector3 Direction;
 };
+
+struct SphereData
+{
+	Vector3 Origin;
+	float Radius;
+};
+
+template<typename T>
+inline void serialize(jsoncpp::Stream<T>& stream, SphereData& o)
+{
+	fields(o, stream,
+		"Origin", o.Origin,
+		"Radius", o.Radius
+		);
+}
+
+struct PlaneData
+{
+	Vector3 Point;
+	Vector3 Normal;
+};
+
+template<typename T>
+inline void serialize(jsoncpp::Stream<T>& stream, PlaneData& o)
+{
+	fields(o, stream,
+		"Point", o.Point,
+		"Normal", o.Normal
+		);
+}
 
 enum ObjectType
 {
@@ -72,9 +96,8 @@ public:
 	{
 		fields(*this, stream,
 			JSON_NVP(Type),
-			JSON_NVP(Origin),
-			JSON_NVP(Normal),
-			JSON_NVP(Radius),
+			JSON_NVP(Sphere),
+			JSON_NVP(Plane),
 			JSON_NVP(Properties)
 			);
 	}
@@ -82,13 +105,11 @@ public:
 	// This is an int to stop json breaking
 	int Type;
 
-	Vector3 Origin;
-
-	// Plane value
-	Vector3 Normal;
-
-	// Sphere value
-	float Radius;
+	union
+	{
+		SphereData Sphere;
+		PlaneData Plane;
+	};
 
 	Material Properties;
 
@@ -123,18 +144,6 @@ struct Intersection
 
 struct Coord
 {
-	Coord()
-	{
-		X = 0;
-		Y = 0;
-	}
-
-	Coord(int _x, int _y)
-	{
-		X = _x;
-		Y = _y;
-	}
-
 	int X;
 	int Y;
 };

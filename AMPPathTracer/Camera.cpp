@@ -35,7 +35,7 @@ void Camera::CalculateDirection() restrict(amp, cpu)
 
 	Forward = Forward.Normalize();
 
-	Right = Forward.Cross(Vector3(0.0f, 0.0f, 1.0f)).Normalize();
+	Right = Forward.Cross({ 0.0f, 0.0f, 1.0f }).Normalize();
 	Up = -Forward.Cross(Right).Normalize();
 }
 
@@ -67,5 +67,5 @@ Ray Camera::CalculateRayForPixelDoF(float x, float y, int width, int height, LCG
 
 	Vector3 dir = (point - jitOrigin).Normalize();
 
-	return Ray(jitOrigin, dir);
+	return{ jitOrigin, dir };
 }

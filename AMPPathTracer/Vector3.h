@@ -12,27 +12,6 @@ using namespace concurrency::fast_math;
 class Vector3
 {
 public:
-	Vector3() restrict(amp, cpu)
-	{
-		X = 0.0f;
-		Y = 0.0f;
-		Z = 0.0f;
-	}
-
-	Vector3(float s) restrict(amp, cpu)
-	{
-		X = s;
-		Y = s;
-		Z = s;
-	}
-
-	Vector3(float _x, float _y, float _z) restrict(amp, cpu)
-	{
-		X = _x;
-		Y = _y;
-		Z = _z;
-	}
-
 	template<typename T>
 	inline void serialize(jsoncpp::Stream<T>& stream)
 	{
@@ -46,40 +25,40 @@ public:
 	// Operators with two vectors
 	Vector3 operator+(const Vector3& v) const restrict(amp, cpu)
 	{
-		return Vector3(X + v.X, Y + v.Y, Z + v.Z);
+		return{ X + v.X, Y + v.Y, Z + v.Z };
 	}
 
 	Vector3 operator-(const Vector3& v) const restrict(amp, cpu)
 	{
-		return Vector3(X - v.X, Y - v.Y, Z - v.Z);
+		return{ X - v.X, Y - v.Y, Z - v.Z };
 	}
 
 	// These are not mathmaticallY correct, theY operate per component
 	Vector3 operator*(const Vector3& v) const restrict(amp, cpu)
 	{
-		return Vector3(X * v.X, Y * v.Y, Z * v.Z);
+		return{ X * v.X, Y * v.Y, Z * v.Z };
 	}
 
 	Vector3 operator/(const Vector3& v) const restrict(amp, cpu)
 	{
-		return Vector3(X / v.X, Y / v.Y, Z / v.Z);
+		return{ X / v.X, Y / v.Y, Z / v.Z };
 	}
 
 	// Scalar operations
 	Vector3 operator*(float d) const restrict(amp, cpu)
 	{
-		return *this * Vector3(d);
+		return *this * Vector3{ d, d, d };
 	}
 
 	Vector3 operator/(float d) const restrict(amp, cpu)
 	{
-		return *this / Vector3(d);
+		return *this / Vector3{ d, d, d };
 	}
 
 	// UnarY minus operator
 	Vector3 operator-() const restrict(amp, cpu)
 	{
-		return Vector3(-X, -Y, -Z);
+		return{ -X, -Y, -Z };
 	}
 
 	// Equality operator
@@ -96,7 +75,7 @@ public:
 
 	Vector3 Cross(const Vector3& v) const restrict(amp, cpu)
 	{
-		return Vector3(Y * v.Z - Z * v.Y, Z * v.X - X * v.Z, X * v.Y - Y * v.X);
+		return{ Y * v.Z - Z * v.Y, Z * v.X - X * v.Z, X * v.Y - Y * v.X };
 	}
 
 	// Used for faster sorting of intersects
@@ -117,17 +96,17 @@ public:
 
 	Vector3 Max(float d) const restrict(amp, cpu)
 	{
-		return Vector3(fmaxf(X, d), fmaxf(Y, d), fmaxf(Z, d));
+		return{ fmaxf(X, d), fmaxf(Y, d), fmaxf(Z, d) };
 	}
 
 	Vector3 Min(float d) const restrict(amp, cpu)
 	{
-		return Vector3(fminf(X, d), fminf(Y, d), fminf(Z, d));
+		return{ fminf(X, d), fminf(Y, d), fminf(Z, d) };
 	}
 
 	Vector3 Pow(float d) const restrict(amp, cpu)
 	{
-		return Vector3(powf(X, d), powf(Y, d), powf(Z, d));
+		return{ powf(X, d), powf(Y, d), powf(Z, d) };
 	}
 
 	// Path tracing specific functions
@@ -144,7 +123,7 @@ public:
 		if (cost2 > 0.0f)
 			return t;
 		else
-			return Vector3();
+			return{ 0.0f, 0.0f, 0.0f };
 	}
 
 	std::string ToString() const

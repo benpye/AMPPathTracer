@@ -55,8 +55,8 @@ float CalculateFresnel(Vector3 direction, Vector3 normal, float lastri, float th
 
 Vector3 Scene::TraceRay(Ray r, LCGRandom *randomGen, int bounces, float threshold, Vector3 ambientEmission, array<SceneObject> &objects) restrict(amp, cpu)
 {
-	Vector3 colorAcc = Vector3();
-	Vector3 reflectanceAcc = Vector3(1.0f);
+	Vector3 colorAcc = { 0.0f, 0.0f, 0.0f };
+	Vector3 reflectanceAcc = { 1.0f, 1.0f, 1.0f };
 
 	for (int bounce = 0; bounce < bounces; bounce++)
 	{
@@ -87,7 +87,7 @@ Vector3 Scene::TraceRay(Ray r, LCGRandom *randomGen, int bounces, float threshol
 		{
 			Vector3 dir;
 
-			color = Vector3(1.0f);
+			color = { 1.0f, 1.0f, 1.0f };
 
 			float thisri = nearestI.Object.Properties.RefractiveIndex;
 			float lastri = 1.0f;
@@ -121,7 +121,7 @@ Vector3 Scene::TraceRay(Ray r, LCGRandom *randomGen, int bounces, float threshol
 			{
 				dir = r.Direction.Refract(normal2, N);
 
-				if (dir == Vector3())
+				if (dir == Vector3{ 0.0f, 0.0f, 0.0f })
 				{
 					dir = r.Direction.Reflect(nearestI.Normal); // Total internal reflection
 
