@@ -3,8 +3,10 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LocalGPUDebuggerTargetType>{F4453496-1DB8-47F8-A7D5-31EBDDC2EC96}</LocalGPUDebuggerTargetType>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <LocalDebuggerCommandArguments>scene.json</LocalDebuggerCommandArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <LocalDebuggerCommandArguments>scene.json</LocalDebuggerCommandArguments>
   </PropertyGroup>
 </Project>

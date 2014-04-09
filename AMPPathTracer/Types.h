@@ -2,6 +2,8 @@
 
 #include "Vector3.h"
 
+#include <json-cpp.hpp>
+
 struct Intersection;
 
 struct Material
@@ -15,6 +17,20 @@ struct Material
 		Transmittance = 0.0;
 		RefractiveIndex = 1.0;
 		Absorbivity = 0.0;
+	}
+
+	template<typename T>
+	inline void serialize(jsoncpp::Stream<T>& stream)
+	{
+		fields(*this, stream,
+			JSON_NVP(Emission),
+			JSON_NVP(DiffuseColor),
+			JSON_NVP(SpecularColor),
+			JSON_NVP(Reflectivity),
+			JSON_NVP(Transmittance),
+			JSON_NVP(RefractiveIndex),
+			JSON_NVP(Absorbivity)
+			);
 	}
 
 	Vector3 Emission;
@@ -51,7 +67,20 @@ public:
 	{
 	}
 
-	ObjectType Type;
+	template<typename T>
+	inline void serialize(jsoncpp::Stream<T>& stream)
+	{
+		fields(*this, stream,
+			JSON_NVP(Type),
+			JSON_NVP(Origin),
+			JSON_NVP(Normal),
+			JSON_NVP(Radius),
+			JSON_NVP(Properties)
+			);
+	}
+
+	// This is an int to stop json breaking
+	int Type;
 
 	Vector3 Origin;
 
@@ -94,6 +123,18 @@ struct Intersection
 
 struct Coord
 {
+	Coord()
+	{
+		X = 0;
+		Y = 0;
+	}
+
+	Coord(int _x, int _y)
+	{
+		X = _x;
+		Y = _y;
+	}
+
 	int X;
 	int Y;
 };

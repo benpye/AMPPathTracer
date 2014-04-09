@@ -53,12 +53,7 @@ float CalculateFresnel(Vector3 direction, Vector3 normal, float lastri, float th
 	return (rs + rp) / 2;
 }
 
-Scene::Scene() restrict(amp, cpu)
-{
-
-}
-
-Vector3 Scene::TraceRay(Ray r, LCGRandom *randomGen, int bounces, float threshold) const restrict(amp, cpu)
+Vector3 Scene::TraceRay(Ray r, LCGRandom *randomGen, int bounces, float threshold, Vector3 ambientEmission, array<SceneObject> &objects) restrict(amp, cpu)
 {
 	Vector3 colorAcc = Vector3();
 	Vector3 reflectanceAcc = Vector3(1.0f);
@@ -71,9 +66,9 @@ Vector3 Scene::TraceRay(Ray r, LCGRandom *randomGen, int bounces, float threshol
 		Intersection nearestI;
 		float lengthSqr = FLT_MAX;
 
-		for (int i = 0; i < SCENE_SIZE; i++)
+		for (unsigned int i = 0; i < objects.extent.size(); i++)
 		{
-			SceneObject obj = Objects[i];
+			SceneObject obj = objects[index<1>(i)];
 			Intersection tempI = obj.Trace(r);
 
 			if (!tempI.Valid)
@@ -126,7 +121,7 @@ Vector3 Scene::TraceRay(Ray r, LCGRandom *randomGen, int bounces, float threshol
 			{
 				dir = r.Direction.Refract(normal2, N);
 
-				if (dir.X == 0.0f && dir.Y == 0.0f && dir.Z == 0.0f)
+				if (dir == Vector3())
 				{
 					dir = r.Direction.Reflect(nearestI.Normal); // Total internal reflection
 
@@ -160,7 +155,7 @@ Vector3 Scene::TraceRay(Ray r, LCGRandom *randomGen, int bounces, float threshol
 		}
 		else
 		{
-			colorAcc = colorAcc + reflectanceAcc * Sky.Emission;
+			colorAcc = colorAcc + reflectanceAcc * ambientEmission;
 			break;
 		}
 
