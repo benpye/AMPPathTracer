@@ -1,34 +1,30 @@
+#include "Common.h"
+
 #include "Scene.h"
 #include "LCGRandom.h"
 
 #include <float.h>
 
-Vector3 CosineWeightedOnHemisphere(const Vector3& normal, LCGRandom *randomGen) restrict(amp, cpu)
+Vector3 CosineWeightedInCone(const Vector3& normal, float maxAngleOverPi, LCGRandom *randomGen) restrict(amp, cpu)
 {
 	float Xi1 = randomGen->NextFloat();
 	float Xi2 = randomGen->NextFloat();
 
-	float theta = acosf(sqrtf(Xi1));
-	float phi = 2.0f * 3.1415926535897932384626433832795f * Xi2;
+	float theta = acosf(sqrtf(Xi1)) * maxAngleOverPi;
+	float phi = 2.0f * M_PI * Xi2;
 
-	float xs = sinf(theta) * cosf(phi);
-	float ys = cosf(theta);
-	float zs = sinf(theta) * sinf(phi);
+	return normal.RotateByAngles(theta, phi);
+}
 
-	Vector3 h = normal;
-	if (fabs(h.X) <= fabs(h.Y) && fabs(h.X) <= fabs(h.Z))
-		h.X = 1.0f;
-	else if (fabs(h.Y) <= fabs(h.X) && fabs(h.Y) <= fabs(h.Z))
-		h.Y = 1.0f;
-	else
-		h.Z = 1.0f;
+Vector3 UniformWeightedInCone(const Vector3& normal, float maxAngleOverPi, LCGRandom *randomGen) restrict(amp, cpu)
+{
+	float Xi1 = randomGen->NextFloat();
+	float Xi2 = randomGen->NextFloat();
 
+	float theta = Xi1 * M_PI_OVER_2 * maxAngleOverPi;
+	float phi = 2.0f * M_PI * Xi2;
 
-	Vector3 x = h.Cross(normal).Normalize();
-	Vector3 z = x.Cross(normal).Normalize();
-
-	Vector3 direction = x * xs + normal * ys + z * zs;
-	return direction.Normalize();
+	return normal.RotateByAngles(theta, phi);
 }
 
 float CalculateFresnel(Vector3 direction, Vector3 normal, float lastri, float thisri, float N) restrict(amp, cpu)
@@ -92,9 +88,11 @@ Vector3 Scene::TraceRay(Ray r, LCGRandom *randomGen, int bounces, float threshol
 			float thisri = nearestI.Object.Properties.RefractiveIndex;
 			float lastri = 1.0f;
 
-			Vector3 normal2 = nearestI.Normal.Dot(r.Direction) < 0.0f ? nearestI.Normal : -nearestI.Normal;
+			Vector3 normal = CosineWeightedInCone(nearestI.Normal, nearestI.Object.Properties.Roughness, randomGen);
 
-			bool inside = nearestI.Normal.Dot(normal2) < 0.0f;
+			Vector3 normal2 = nearestI.Normal.Dot(r.Direction) < 0.0f ? normal : -normal;
+
+			bool inside = normal.Dot(normal2) < 0.0f;
 
 			if (inside)
 			{
@@ -112,7 +110,7 @@ Vector3 Scene::TraceRay(Ray r, LCGRandom *randomGen, int bounces, float threshol
 
 			if (rValue < reflectivity * fresnel)
 			{
-				dir = r.Direction.Reflect(nearestI.Normal);
+				dir = r.Direction.Reflect(normal);
 
 				// Specular color to approximate metals that tint reflections
 				color = nearestI.Object.Properties.SpecularColor;
@@ -123,39 +121,39 @@ Vector3 Scene::TraceRay(Ray r, LCGRandom *randomGen, int bounces, float threshol
 
 				if (dir == Vector3{ 0.0f, 0.0f, 0.0f })
 				{
-					dir = r.Direction.Reflect(nearestI.Normal); // Total internal reflection
+					dir = r.Direction.Reflect(normal); // Total internal reflection
 
 					color = nearestI.Object.Properties.SpecularColor;
 				}
 
 				if (inside)
 				{
-					float absorbivity = nearestI.Object.Properties.Absorbivity;
+					//float absorbivity = nearestI.Object.Properties.Absorbivity;
 
-					float dist = (nearestI.Position - r.Origin).Length();
+					//float dist = (nearestI.Position - r.Origin).Length();
 
 					// TODO: Accurate beer's law
 
-					color = color * nearestI.Object.Properties.DiffuseColor;
+					color *= nearestI.Object.Properties.DiffuseColor;
 				}
 			}
 			else
 			{
-				dir = CosineWeightedOnHemisphere(nearestI.Normal, randomGen);
+				dir = CosineWeightedInCone(nearestI.Normal, 1.0f, randomGen);
 
 				// Diffuse reflection affected by surface color
 				color = nearestI.Object.Properties.DiffuseColor;
 			}
 
-			colorAcc = colorAcc + reflectanceAcc * nearestI.Object.Properties.Emission;
-			reflectanceAcc = reflectanceAcc * color;
+			colorAcc += reflectanceAcc * nearestI.Object.Properties.Emission;
+			reflectanceAcc *= color;
 
 			r.Origin = nearestI.Position + dir * 1E-3f;
 			r.Direction = dir;
 		}
 		else
 		{
-			colorAcc = colorAcc + reflectanceAcc * ambientEmission;
+			colorAcc += reflectanceAcc * ambientEmission;
 			break;
 		}
 

@@ -1,11 +1,9 @@
+#include "Common.h"
+
 #include "Camera.h"
 
 #include <amp_math.h>
 using namespace concurrency::fast_math;
-
-#ifndef M_PI
-#define M_PI 3.1415926535897932384626433832795f
-#endif
 
 Camera::Camera() restrict(amp, cpu)
 {
@@ -17,7 +15,7 @@ Camera::Camera() restrict(amp, cpu)
 
 void Camera::Move(Vector3 direction) restrict(amp, cpu)
 {
-	Origin = Origin + direction;
+	Origin += direction;
 }
 
 void Camera::ChangeDirection(float dpitch, float dyaw) restrict(amp, cpu)

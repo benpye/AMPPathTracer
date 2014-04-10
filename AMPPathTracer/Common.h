@@ -1,0 +1,4 @@
+#pragma once
+
+#define M_PI 3.1415926535897932384626433832795f
+#define M_PI_OVER_2 (M_PI/2.0f)

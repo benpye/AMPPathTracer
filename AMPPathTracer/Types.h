@@ -13,10 +13,10 @@ struct Material
 		Emission = { 0.0f, 0.0f, 0.0f };
 		DiffuseColor = { 0.0f, 0.0f, 0.0f };
 		SpecularColor = { 1.0f, 1.0f, 1.0f };
-		Reflectivity = 0.0;
-		Transmittance = 0.0;
-		RefractiveIndex = 1.0;
-		Absorbivity = 0.0;
+		Reflectivity = 0.0f;
+		Transmittance = 0.0f;
+		RefractiveIndex = 1.0f;
+		Roughness = 0.0f;
 	}
 
 	template<typename T>
@@ -29,7 +29,7 @@ struct Material
 			JSON_NVP(Reflectivity),
 			JSON_NVP(Transmittance),
 			JSON_NVP(RefractiveIndex),
-			JSON_NVP(Absorbivity)
+			JSON_NVP(Roughness)
 			);
 	}
 
@@ -39,7 +39,7 @@ struct Material
 	float Reflectivity;
 	float Transmittance;
 	float RefractiveIndex;
-	float Absorbivity;
+	float Roughness;
 };
 
 struct Ray
@@ -50,33 +50,33 @@ struct Ray
 
 struct SphereData
 {
+	template<typename T>
+	inline void serialize(jsoncpp::Stream<T>& stream)
+	{
+		fields(*this, stream,
+			JSON_NVP(Origin),
+			JSON_NVP(Radius)
+			);
+	}
+
 	Vector3 Origin;
 	float Radius;
 };
 
-template<typename T>
-inline void serialize(jsoncpp::Stream<T>& stream, SphereData& o)
-{
-	fields(o, stream,
-		"Origin", o.Origin,
-		"Radius", o.Radius
-		);
-}
-
 struct PlaneData
 {
+	template<typename T>
+	inline void serialize(jsoncpp::Stream<T>& stream)
+	{
+		fields(*this, stream,
+			JSON_NVP(Point),
+			JSON_NVP(Normal)
+			);
+	}
+
 	Vector3 Point;
 	Vector3 Normal;
 };
-
-template<typename T>
-inline void serialize(jsoncpp::Stream<T>& stream, PlaneData& o)
-{
-	fields(o, stream,
-		"Point", o.Point,
-		"Normal", o.Normal
-		);
-}
 
 enum ObjectType
 {
@@ -137,9 +137,9 @@ struct Intersection
 	Vector3 Position;
 	Vector3 Normal;
 
-	bool Valid;
-
 	SceneObject Object;
+
+	bool Valid;
 };
 
 struct Coord

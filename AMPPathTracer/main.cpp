@@ -1,6 +1,8 @@
 #include <SFML\Window.hpp>
 #include <SFML\Graphics.hpp>
 
+#include "Common.h"
+
 #include "Vector3.h"
 #include "Scene.h"
 #include "Camera.h"
@@ -13,10 +15,6 @@
 #include <fstream>
 
 #include <json-cpp.hpp>
-
-#ifndef M_PI
-#define M_PI 3.1415926535897932384626433832795f
-#endif
 
 using namespace concurrency;
 using namespace fast_math;
@@ -109,6 +107,7 @@ int main(int argc, char **argv)
 
 	p.Recursions = scene.Recursions;
 	p.Threshold = scene.Threshold;
+	p.AmbientEmission = scene.SceneEmission;
 
 	p.InitBuffers();
 	p.LoadScene(scene.Objects);

@@ -67,6 +67,31 @@ public:
 		return ((X == v.X) && (Y == v.Y) && (Z == v.Z));
 	}
 
+	// Assignment operators
+	Vector3 operator+=(const Vector3& v) restrict(amp, cpu)
+	{
+		X += v.X; Y += v.Y; Z += v.Z;
+		return *this;
+	}
+
+	Vector3 operator-=(const Vector3& v) restrict(amp, cpu)
+	{
+		X -= v.X; Y -= v.Y; Z -= v.Z;
+		return *this;
+	}
+
+	Vector3 operator*=(const Vector3& v) restrict(amp, cpu)
+	{
+		X *= v.X; Y *= v.Y; Z *= v.Z;
+		return *this;
+	}
+
+	Vector3 operator/=(const Vector3& v) restrict(amp, cpu)
+	{
+		X /= v.X; Y /= v.Y; Z /= v.Z;
+		return *this;
+	}
+
 	// More compleX math operations
 	float Dot(const Vector3& v) const restrict(amp, cpu)
 	{
@@ -124,6 +149,29 @@ public:
 			return t;
 		else
 			return{ 0.0f, 0.0f, 0.0f };
+	}
+
+	// Find vector by rotation
+	Vector3 RotateByAngles(float theta, float phi) const restrict(amp, cpu)
+	{
+		float xs = sinf(theta) * cosf(phi);
+		float ys = cosf(theta);
+		float zs = sinf(theta) * sinf(phi);
+
+		Vector3 h = *this;
+		if (fabs(h.X) <= fabs(h.Y) && fabs(h.X) <= fabs(h.Z))
+			h.X = 1.0f;
+		else if (fabs(h.Y) <= fabs(h.X) && fabs(h.Y) <= fabs(h.Z))
+			h.Y = 1.0f;
+		else
+			h.Z = 1.0f;
+
+
+		Vector3 x = Cross(h).Normalize();
+		Vector3 z = Cross(x).Normalize();
+
+		Vector3 direction = x * xs + *this * ys + z * zs;
+		return direction.Normalize();
 	}
 
 	std::string ToString() const

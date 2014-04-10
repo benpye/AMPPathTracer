@@ -95,6 +95,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="Common.h" />
     <ClInclude Include="Controller.h" />
     <ClInclude Include="LCGRandom.h" />
     <ClInclude Include="PathTracer.h" />

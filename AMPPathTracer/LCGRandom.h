@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Vector3.h"
+
 // glibc values
 #define LCG_RANDOM_A 1103515245
 #define LCG_RANDOM_C 12345
@@ -29,6 +31,11 @@ public:
 	{
 		x = x * LCG_RANDOM_A + LCG_RANDOM_C;
 		return (float) x / (float) LCG_RANDOM_MAX;
+	}
+
+	Vector3 NextVectorInCone(const Vector3& dir, float angle)
+	{
+
 	}
 private:
 	unsigned int x;
