@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -38,7 +38,9 @@
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
-  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Label="UserMacros">
+    <NuGetPackageImportStamp>8fb4edfe</NuGetPackageImportStamp>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
@@ -52,14 +54,15 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../SFML-2.1/include;../json-cpp/include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\lua-5.3.0\src</AdditionalIncludeDirectories>
       <WholeProgramOptimization>true</WholeProgramOptimization>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>../SFML-2.1/lib/$(Configuration)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>sfml-system-d.lib;sfml-graphics-d.lib;sfml-window-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
+      <AdditionalDependencies>%(AdditionalDependencies);</AdditionalDependencies>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
       <SubSystem>Console</SubSystem>
     </Link>
@@ -73,20 +76,55 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../SFML-2.1/include;../json-cpp/include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\lua-5.3.0\src</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>../SFML-2.1/lib/$(Configuration)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>sfml-system.lib;sfml-graphics.lib;sfml-window.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
+      <AdditionalDependencies>%(AdditionalDependencies);</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\lua-5.3.0\src\lapi.c" />
+    <ClCompile Include="..\lua-5.3.0\src\lauxlib.c" />
+    <ClCompile Include="..\lua-5.3.0\src\lbaselib.c" />
+    <ClCompile Include="..\lua-5.3.0\src\lbitlib.c" />
+    <ClCompile Include="..\lua-5.3.0\src\lcode.c" />
+    <ClCompile Include="..\lua-5.3.0\src\lcorolib.c" />
+    <ClCompile Include="..\lua-5.3.0\src\lctype.c" />
+    <ClCompile Include="..\lua-5.3.0\src\ldblib.c" />
+    <ClCompile Include="..\lua-5.3.0\src\ldebug.c" />
+    <ClCompile Include="..\lua-5.3.0\src\ldo.c" />
+    <ClCompile Include="..\lua-5.3.0\src\ldump.c" />
+    <ClCompile Include="..\lua-5.3.0\src\lfunc.c" />
+    <ClCompile Include="..\lua-5.3.0\src\lgc.c" />
+    <ClCompile Include="..\lua-5.3.0\src\linit.c" />
+    <ClCompile Include="..\lua-5.3.0\src\liolib.c" />
+    <ClCompile Include="..\lua-5.3.0\src\llex.c" />
+    <ClCompile Include="..\lua-5.3.0\src\lmathlib.c" />
+    <ClCompile Include="..\lua-5.3.0\src\lmem.c" />
+    <ClCompile Include="..\lua-5.3.0\src\loadlib.c" />
+    <ClCompile Include="..\lua-5.3.0\src\lobject.c" />
+    <ClCompile Include="..\lua-5.3.0\src\lopcodes.c" />
+    <ClCompile Include="..\lua-5.3.0\src\loslib.c" />
+    <ClCompile Include="..\lua-5.3.0\src\lparser.c" />
+    <ClCompile Include="..\lua-5.3.0\src\lstate.c" />
+    <ClCompile Include="..\lua-5.3.0\src\lstring.c" />
+    <ClCompile Include="..\lua-5.3.0\src\lstrlib.c" />
+    <ClCompile Include="..\lua-5.3.0\src\ltable.c" />
+    <ClCompile Include="..\lua-5.3.0\src\ltablib.c" />
+    <ClCompile Include="..\lua-5.3.0\src\ltm.c" />
+    <ClCompile Include="..\lua-5.3.0\src\lundump.c" />
+    <ClCompile Include="..\lua-5.3.0\src\lutf8lib.c" />
+    <ClCompile Include="..\lua-5.3.0\src\lvm.c" />
+    <ClCompile Include="..\lua-5.3.0\src\lzio.c" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Controller.cpp" />
+    <ClCompile Include="luatables.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="PathTracer.cpp" />
     <ClCompile Include="SavedScene.cpp" />
@@ -94,17 +132,71 @@
     <ClCompile Include="SceneObject.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\lua-5.3.0\src\lapi.h" />
+    <ClInclude Include="..\lua-5.3.0\src\lauxlib.h" />
+    <ClInclude Include="..\lua-5.3.0\src\lcode.h" />
+    <ClInclude Include="..\lua-5.3.0\src\lctype.h" />
+    <ClInclude Include="..\lua-5.3.0\src\ldebug.h" />
+    <ClInclude Include="..\lua-5.3.0\src\ldo.h" />
+    <ClInclude Include="..\lua-5.3.0\src\lfunc.h" />
+    <ClInclude Include="..\lua-5.3.0\src\lgc.h" />
+    <ClInclude Include="..\lua-5.3.0\src\llex.h" />
+    <ClInclude Include="..\lua-5.3.0\src\llimits.h" />
+    <ClInclude Include="..\lua-5.3.0\src\lmem.h" />
+    <ClInclude Include="..\lua-5.3.0\src\lobject.h" />
+    <ClInclude Include="..\lua-5.3.0\src\lopcodes.h" />
+    <ClInclude Include="..\lua-5.3.0\src\lparser.h" />
+    <ClInclude Include="..\lua-5.3.0\src\lprefix.h" />
+    <ClInclude Include="..\lua-5.3.0\src\lstate.h" />
+    <ClInclude Include="..\lua-5.3.0\src\lstring.h" />
+    <ClInclude Include="..\lua-5.3.0\src\ltable.h" />
+    <ClInclude Include="..\lua-5.3.0\src\ltm.h" />
+    <ClInclude Include="..\lua-5.3.0\src\lua.h" />
+    <ClInclude Include="..\lua-5.3.0\src\lua.hpp" />
+    <ClInclude Include="..\lua-5.3.0\src\luaconf.h" />
+    <ClInclude Include="..\lua-5.3.0\src\lualib.h" />
+    <ClInclude Include="..\lua-5.3.0\src\lundump.h" />
+    <ClInclude Include="..\lua-5.3.0\src\lvm.h" />
+    <ClInclude Include="..\lua-5.3.0\src\lzio.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Common.h" />
     <ClInclude Include="Controller.h" />
     <ClInclude Include="LCGRandom.h" />
+    <ClInclude Include="luatables.h" />
+    <ClInclude Include="LuaTableTypes.h" />
     <ClInclude Include="PathTracer.h" />
     <ClInclude Include="SavedScene.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="Types.h" />
     <ClInclude Include="Vector3.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <Content Include="scene.lua">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SourceCodePro-Regular.otf">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="..\packages\sfml-system.redist.2.2.0.1\build\native\sfml-system.redist.targets" Condition="Exists('..\packages\sfml-system.redist.2.2.0.1\build\native\sfml-system.redist.targets')" />
+    <Import Project="..\packages\sfml-system.2.2.0.1\build\native\sfml-system.targets" Condition="Exists('..\packages\sfml-system.2.2.0.1\build\native\sfml-system.targets')" />
+    <Import Project="..\packages\sfml-window.redist.2.2.0.1\build\native\sfml-window.redist.targets" Condition="Exists('..\packages\sfml-window.redist.2.2.0.1\build\native\sfml-window.redist.targets')" />
+    <Import Project="..\packages\sfml-window.2.2.0.1\build\native\sfml-window.targets" Condition="Exists('..\packages\sfml-window.2.2.0.1\build\native\sfml-window.targets')" />
+    <Import Project="..\packages\sfml-graphics.redist.2.2.0.1\build\native\sfml-graphics.redist.targets" Condition="Exists('..\packages\sfml-graphics.redist.2.2.0.1\build\native\sfml-graphics.redist.targets')" />
+    <Import Project="..\packages\sfml-graphics.2.2.0.1\build\native\sfml-graphics.targets" Condition="Exists('..\packages\sfml-graphics.2.2.0.1\build\native\sfml-graphics.targets')" />
   </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\sfml-system.redist.2.2.0.1\build\native\sfml-system.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\sfml-system.redist.2.2.0.1\build\native\sfml-system.redist.targets'))" />
+    <Error Condition="!Exists('..\packages\sfml-system.2.2.0.1\build\native\sfml-system.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\sfml-system.2.2.0.1\build\native\sfml-system.targets'))" />
+    <Error Condition="!Exists('..\packages\sfml-window.redist.2.2.0.1\build\native\sfml-window.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\sfml-window.redist.2.2.0.1\build\native\sfml-window.redist.targets'))" />
+    <Error Condition="!Exists('..\packages\sfml-window.2.2.0.1\build\native\sfml-window.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\sfml-window.2.2.0.1\build\native\sfml-window.targets'))" />
+    <Error Condition="!Exists('..\packages\sfml-graphics.redist.2.2.0.1\build\native\sfml-graphics.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\sfml-graphics.redist.2.2.0.1\build\native\sfml-graphics.redist.targets'))" />
+    <Error Condition="!Exists('..\packages\sfml-graphics.2.2.0.1\build\native\sfml-graphics.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\sfml-graphics.2.2.0.1\build\native\sfml-graphics.targets'))" />
+  </Target>
 </Project>

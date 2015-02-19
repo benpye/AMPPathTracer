@@ -5,23 +5,11 @@
 #include <string>
 #include <sstream>
 
-#include <json-cpp.hpp>
-
 using namespace concurrency::fast_math;
 
 class Vector3
 {
 public:
-	template<typename T>
-	inline void serialize(jsoncpp::Stream<T>& stream)
-	{
-		fields(*this, stream,
-			JSON_NVP(X),
-			JSON_NVP(Y),
-			JSON_NVP(Z)
-			);
-	}
-
 	// Operators with two vectors
 	Vector3 operator+(const Vector3& v) const restrict(amp, cpu)
 	{

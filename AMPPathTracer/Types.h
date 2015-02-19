@@ -2,8 +2,6 @@
 
 #include "Vector3.h"
 
-#include <json-cpp.hpp>
-
 struct Intersection;
 
 struct Material
@@ -17,20 +15,6 @@ struct Material
 		Transmittance = 0.0f;
 		RefractiveIndex = 1.0f;
 		Roughness = 0.0f;
-	}
-
-	template<typename T>
-	inline void serialize(jsoncpp::Stream<T>& stream)
-	{
-		fields(*this, stream,
-			JSON_NVP(Emission),
-			JSON_NVP(DiffuseColor),
-			JSON_NVP(SpecularColor),
-			JSON_NVP(Reflectivity),
-			JSON_NVP(Transmittance),
-			JSON_NVP(RefractiveIndex),
-			JSON_NVP(Roughness)
-			);
 	}
 
 	Vector3 Emission;
@@ -50,30 +34,12 @@ struct Ray
 
 struct SphereData
 {
-	template<typename T>
-	inline void serialize(jsoncpp::Stream<T>& stream)
-	{
-		fields(*this, stream,
-			JSON_NVP(Origin),
-			JSON_NVP(Radius)
-			);
-	}
-
 	Vector3 Origin;
 	float Radius;
 };
 
 struct PlaneData
 {
-	template<typename T>
-	inline void serialize(jsoncpp::Stream<T>& stream)
-	{
-		fields(*this, stream,
-			JSON_NVP(Point),
-			JSON_NVP(Normal)
-			);
-	}
-
 	Vector3 Point;
 	Vector3 Normal;
 };
@@ -82,6 +48,7 @@ enum ObjectType
 {
 	OBJECT_SPHERE,
 	OBJECT_PLANE,
+	OBJECT_INVALID
 };
 
 class SceneObject
@@ -89,17 +56,6 @@ class SceneObject
 public:
 	SceneObject() restrict(amp, cpu)
 	{
-	}
-
-	template<typename T>
-	inline void serialize(jsoncpp::Stream<T>& stream)
-	{
-		fields(*this, stream,
-			JSON_NVP(Type),
-			JSON_NVP(Sphere),
-			JSON_NVP(Plane),
-			JSON_NVP(Properties)
-			);
 	}
 
 	// This is an int to stop json breaking

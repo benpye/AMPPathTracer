@@ -10,11 +10,12 @@
 #include "PathTracer.h"
 #include "SavedScene.h"
 
+#include "luatables.h"
+#include "LuaTableTypes.h"
+
 #include <iostream>
 #include <sstream>
 #include <fstream>
-
-#include <json-cpp.hpp>
 
 using namespace concurrency;
 using namespace fast_math;
@@ -62,7 +63,7 @@ int main(int argc, char **argv)
 	}
 	catch (...)
 	{
-		std::cout << "Error parsing json file" << std::endl;
+		std::cout << "Error parsing lua file" << std::endl;
 		return 0;
 	}
 

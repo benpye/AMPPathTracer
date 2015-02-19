@@ -7,8 +7,6 @@
 #include <vector>
 #include <string>
 
-#include <json-cpp.hpp>
-
 class SavedScene
 {
 public:
@@ -16,18 +14,6 @@ public:
 	{
 		Recursions = 10;
 		Threshold = 0.0f;
-	}
-
-	template<typename T>
-	inline void serialize(jsoncpp::Stream<T>& stream)
-	{
-		fields(*this, stream,
-			JSON_NVP(Recursions),
-			JSON_NVP(Threshold),
-			JSON_NVP(Cam),
-			JSON_NVP(SceneEmission),
-			JSON_NVP(Objects)
-			);
 	}
 
 	int Recursions;

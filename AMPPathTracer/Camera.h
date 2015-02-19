@@ -4,25 +4,10 @@
 #include "LCGRandom.h"
 #include "Types.h"
 
-#include <json-cpp.hpp>
-
 class Camera
 {
 public:
 	Camera() restrict(amp, cpu);
-
-	template<typename T>
-	inline void serialize(jsoncpp::Stream<T>& stream)
-	{
-		fields(*this, stream,
-			JSON_NVP(Origin),
-			JSON_NVP(Pitch),
-			JSON_NVP(Yaw),
-			JSON_NVP(Fov),
-			JSON_NVP(FocalPoint),
-			JSON_NVP(Aperture)
-			);
-	}
 
 	void Move(Vector3 direction) restrict(amp, cpu);
 

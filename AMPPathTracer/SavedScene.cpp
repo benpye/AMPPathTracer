@@ -1,17 +1,29 @@
 #include "SavedScene.h"
 
+#include "luatables.h"
+
 #include <fstream>
 
 SavedScene SavedScene::LoadFromFile(std::string filename)
 {
-	std::stringstream buf;
+	SavedScene result;
+	LuaTable ltable = LuaTable::fromFile(filename.c_str());
 
-	std::ifstream fileRead(filename);
-	buf << fileRead.rdbuf();
-	fileRead.close();
+	result.Cam = ltable["Camera"];
+	result.Recursions = ltable["Recursions"].getDefault<int>(10);
+	result.SceneEmission = ltable["SceneEmission"].getDefault<Vector3>({ 0.0f, 0.0f, 0.0f });
+	result.Threshold = ltable["Threshold"].getDefault<float>(0.0f);
 
-	SavedScene save;
-	jsoncpp::parse(save, buf.str());
+	auto keys = ltable["Objects"].keys();
+	for (auto key : keys)
+	{
+		if (key.type == LuaKey::Type::Integer)
+			result.Objects.push_back(ltable["Objects"][key.int_value]);
+		else
+			result.Objects.push_back(ltable["Objects"][key.string_value.c_str()]);
+	}
 
-	return save;
+	ltable.destroyState();
+
+	return result;
 }

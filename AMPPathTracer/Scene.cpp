@@ -148,7 +148,7 @@ Vector3 Scene::TraceRay(Ray r, LCGRandom *randomGen, int bounces, float threshol
 			colorAcc += reflectanceAcc * nearestI.Object.Properties.Emission;
 			reflectanceAcc *= color;
 
-			r.Origin = nearestI.Position + dir * 1E-3f;
+			r.Origin = nearestI.Position +dir *1E-3f;
 			r.Direction = dir;
 		}
 		else
