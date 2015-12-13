@@ -7,63 +7,44 @@ using namespace concurrency::fast_math;
 
 Camera::Camera() restrict(amp, cpu)
 {
-	Pitch = 0.0f;
-	Yaw = 0.0f;
+    Pitch = 0.0f;
+    Yaw = 0.0f;
 
-	CalculateDirection();
+    CalculateDirection();
 }
 
-void Camera::Move(Vector3 direction) restrict(amp, cpu)
+void Camera::Move(V3 direction) restrict(amp, cpu)
 {
-	Origin += direction;
+    Origin += direction;
 }
 
 void Camera::ChangeDirection(float dpitch, float dyaw) restrict(amp, cpu)
 {
-	Pitch += dpitch;
-	Yaw += dyaw;
-	CalculateDirection();
+    Pitch += dpitch;
+    Yaw += dyaw;
+    CalculateDirection();
 }
 
 void Camera::CalculateDirection() restrict(amp, cpu)
 {
-	Forward.X = sinf(Yaw) * cosf(Pitch);
-	Forward.Y = cosf(Yaw) * cosf(Pitch);
-	Forward.Z = sinf(Pitch);
+    Forward.X = sinf(Yaw) * cosf(Pitch);
+    Forward.Y = cosf(Yaw) * cosf(Pitch);
+    Forward.Z = sinf(Pitch);
 
-	Forward = Forward.Normalize();
+    Forward = Forward.Normalize();
 
-	Right = Forward.Cross({ 0.0f, 0.0f, 1.0f }).Normalize();
-	Up = -Forward.Cross(Right).Normalize();
+    Right = Forward.Cross({ 0.0f, 0.0f, 1.0f }).Normalize();
+    Up = -Forward.Cross(Right).Normalize();
 }
 
 void Camera::CalculateScreenDistance(int width) restrict(amp, cpu)
 {
-	ScreenDistance = (((float) width) / 2.0f) / tanf(Fov / 2.0f);
+    ScreenDistance = (((float)width) / 2.0f) / tanf(Fov / 2.0f);
 }
 
-Vector3 Camera::CalculateDirectionForPixel(float x, float y, int width, int height) const restrict(amp, cpu)
+V3 Camera::CalculateDirectionForPixel(float x, float y, int width, int height) const restrict(amp, cpu)
 {
-	return ((Forward * ScreenDistance)
-		+ (-Up * (y - ((float) height / 2.0f)))
-		+ (Right * (x - ((float) width / 2.0f)))).Normalize();
-}
-
-Ray Camera::CalculateRayForPixelDoF(float x, float y, int width, int height, LCGRandom *random) const restrict(amp, cpu)
-{
-	float theta = random->NextFloat() * 2.0f * M_PI;
-	float r = sqrtf(random->NextFloat()) * Aperture;
-
-	float rx = (r * cosf(theta)) - (Aperture / 2.0f);
-	float ry = (r * sinf(theta)) - (Aperture / 2.0f);
-
-	Vector3 point = Origin + CalculateDirectionForPixel(x, y, width, height) * FocalPoint;
-
-	Vector3 jitOrigin = Origin +
-		Right * rx +
-		Up * ry;
-
-	Vector3 dir = (point - jitOrigin).Normalize();
-
-	return{ jitOrigin, dir };
+    return ((Forward * ScreenDistance)
+        + (-Up * (y - ((float)height / 2.0f)))
+        + (Right * (x - ((float)width / 2.0f)))).Normalize();
 }

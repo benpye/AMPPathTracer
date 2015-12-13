@@ -5,161 +5,176 @@
 
 #include <float.h>
 
-Vector3 CosineWeightedInCone(const Vector3& normal, float maxAngleOverPi, LCGRandom *randomGen) restrict(amp, cpu)
+V3 CosineWeightedInCone(const V3& normal, LCGRandom *randomGen) restrict(amp, cpu)
 {
-	float Xi1 = randomGen->NextFloat();
-	float Xi2 = randomGen->NextFloat();
+    float Xi1 = randomGen->NextFloat();
+    float Xi2 = randomGen->NextFloat();
 
-	float theta = acosf(sqrtf(Xi1)) * maxAngleOverPi;
-	float phi = 2.0f * M_PI * Xi2;
+    float theta = acosf(sqrtf(Xi1));
+    float phi = 2.0f * M_PI * Xi2;
 
-	return normal.RotateByAngles(theta, phi);
+    return normal.RotateByAngles(theta, phi);
 }
 
-Vector3 UniformWeightedInCone(const Vector3& normal, float maxAngleOverPi, LCGRandom *randomGen) restrict(amp, cpu)
+V3 UniformWeightedInCone(const V3& normal, LCGRandom *randomGen) restrict(amp, cpu)
 {
-	float Xi1 = randomGen->NextFloat();
-	float Xi2 = randomGen->NextFloat();
+    float Xi1 = randomGen->NextFloat();
+    float Xi2 = randomGen->NextFloat();
 
-	float theta = Xi1 * M_PI_OVER_2 * maxAngleOverPi;
-	float phi = 2.0f * M_PI * Xi2;
+    float theta = Xi1 * M_PI_OVER_2;
+    float phi = 2.0f * M_PI * Xi2;
 
-	return normal.RotateByAngles(theta, phi);
+    return normal.RotateByAngles(theta, phi);
 }
 
-float CalculateFresnel(Vector3 direction, Vector3 normal, float lastri, float thisri, float N) restrict(amp, cpu)
+V3 Scene::TraceRayCPU(Ray r, LCGRandom *randomGen, int bounces, std::vector<SceneObject> objects) restrict(cpu)
 {
-	float cosAoi = direction.Dot(-normal);
+    V3 colorAcc = { 0.0f, 0.0f, 0.0f };
+    V3 reflectanceAcc = { 1.0f, 1.0f, 1.0f };
 
-	float n1cosAoi = lastri * cosAoi;
-	float n2cosAoi = thisri * cosAoi;
+    for (int bounce = 0; bounce < bounces; bounce++)
+    {
+        V3 color;
 
-	float sinAoi = sin(acos(cosAoi));
+        // Get nearest intersection
+        Intersection nearestI;
+        float lengthSqr = FLT_MAX;
 
-	float rsqrt = sqrtf(1 - N * sinAoi * N * sinAoi);
+        for (unsigned int i = 0; i < objects.size(); i++)
+        {
+            SceneObject obj = objects[i];
+            Intersection tempI = obj.Trace(r);
 
-	float rssqrt = thisri * rsqrt;
-	float rs = (n1cosAoi - rssqrt) / (n1cosAoi + rssqrt);
-	rs = rs * rs;
+            if (!tempI.Valid)
+                continue;
 
-	float rpsqrt = lastri * rsqrt;
-	float rp = (rpsqrt - n2cosAoi) / (rpsqrt + n2cosAoi);
-	rp = rp * rp;
+            float lengthNew = (tempI.Position - r.Origin).LengthSquared();
 
-	return (rs + rp) / 2;
+            if (lengthNew < lengthSqr)
+            {
+                nearestI = tempI;
+                lengthSqr = lengthNew;
+            }
+        }
+
+        if (nearestI.Valid)
+        {
+            V3 dir;
+
+            color = { 1.0f, 1.0f, 1.0f };
+
+            V3 normal = nearestI.Normal;
+
+            V3 normal2 = nearestI.Normal.Dot(r.Direction) < 0.0f ? normal : -normal;
+
+            bool inside = normal.Dot(normal2) < 0.0f;
+
+            float reflectivity = nearestI.Object.Properties.Reflectivity;
+
+            float rValue = randomGen->NextFloat();
+
+            if (rValue < reflectivity)
+            {
+                dir = r.Direction.Reflect(normal);
+
+                // Specular color to approximate metals that tint reflections
+                color = nearestI.Object.Properties.SpecularColor;
+            }
+            else
+            {
+                dir = CosineWeightedInCone(nearestI.Normal, randomGen);
+
+                // Diffuse reflection affected by surface color
+                color = nearestI.Object.Properties.DiffuseColor;
+            }
+
+            colorAcc += reflectanceAcc * nearestI.Object.Properties.Emission;
+            reflectanceAcc *= color;
+
+            r.Origin = nearestI.Position + dir * 1E-3f;
+            r.Direction = dir;
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    return colorAcc;
 }
 
-Vector3 Scene::TraceRay(Ray r, LCGRandom *randomGen, int bounces, float threshold, Vector3 ambientEmission, array<SceneObject> &objects) restrict(amp, cpu)
+V3 Scene::TraceRay(Ray r, LCGRandom *randomGen, int bounces, array<SceneObject> &objects) restrict(amp)
 {
-	Vector3 colorAcc = { 0.0f, 0.0f, 0.0f };
-	Vector3 reflectanceAcc = { 1.0f, 1.0f, 1.0f };
+    V3 colorAcc = { 0.0f, 0.0f, 0.0f };
+    V3 reflectanceAcc = { 1.0f, 1.0f, 1.0f };
 
-	for (int bounce = 0; bounce < bounces; bounce++)
-	{
-		Vector3 color;
+    for (int bounce = 0; bounce < bounces; bounce++)
+    {
+        V3 color;
 
-		// Get nearest intersection
-		Intersection nearestI;
-		float lengthSqr = FLT_MAX;
+        // Get nearest intersection
+        Intersection nearestI;
+        float lengthSqr = FLT_MAX;
 
-		for (unsigned int i = 0; i < objects.extent.size(); i++)
-		{
-			SceneObject obj = objects[index<1>(i)];
-			Intersection tempI = obj.Trace(r);
+        for (unsigned int i = 0; i < objects.extent.size(); i++)
+        {
+            SceneObject obj = objects[index<1>(i)];
+            Intersection tempI = obj.Trace(r);
 
-			if (!tempI.Valid)
-				continue;
+            if (!tempI.Valid)
+                continue;
 
-			float lengthNew = (tempI.Position - r.Origin).LengthSquared();
+            float lengthNew = (tempI.Position - r.Origin).LengthSquared();
 
-			if (lengthNew < lengthSqr)
-			{
-				nearestI = tempI;
-				lengthSqr = lengthNew;
-			}
-		}
+            if (lengthNew < lengthSqr)
+            {
+                nearestI = tempI;
+                lengthSqr = lengthNew;
+            }
+        }
 
-		if (nearestI.Valid)
-		{
-			Vector3 dir;
+        if (nearestI.Valid)
+        {
+            V3 dir;
 
-			color = { 1.0f, 1.0f, 1.0f };
+            color = { 1.0f, 1.0f, 1.0f };
 
-			float thisri = nearestI.Object.Properties.RefractiveIndex;
-			float lastri = 1.0f;
+            V3 normal = nearestI.Normal;
 
-			Vector3 normal = CosineWeightedInCone(nearestI.Normal, nearestI.Object.Properties.Roughness, randomGen);
+            V3 normal2 = nearestI.Normal.Dot(r.Direction) < 0.0f ? normal : -normal;
 
-			Vector3 normal2 = nearestI.Normal.Dot(r.Direction) < 0.0f ? normal : -normal;
+            bool inside = normal.Dot(normal2) < 0.0f;
 
-			bool inside = normal.Dot(normal2) < 0.0f;
+            float reflectivity = nearestI.Object.Properties.Reflectivity;
 
-			if (inside)
-			{
-				lastri = thisri;
-				thisri = 1.0f;
-			}
+            float rValue = randomGen->NextFloat();
 
-			float N = lastri / thisri;
-			float fresnel = CalculateFresnel(r.Direction, normal2, lastri, thisri, N);
+            if (rValue < reflectivity)
+            {
+                dir = r.Direction.Reflect(normal);
 
-			float reflectivity = nearestI.Object.Properties.Reflectivity;
-			float transmittance = nearestI.Object.Properties.Transmittance;
+                // Specular color to approximate metals that tint reflections
+                color = nearestI.Object.Properties.SpecularColor;
+            }
+            else
+            {
+                dir = CosineWeightedInCone(nearestI.Normal, randomGen);
 
-			float rValue = randomGen->NextFloat();
+                // Diffuse reflection affected by surface color
+                color = nearestI.Object.Properties.DiffuseColor;
+            }
 
-			if (rValue < reflectivity * fresnel)
-			{
-				dir = r.Direction.Reflect(normal);
+            colorAcc += reflectanceAcc * nearestI.Object.Properties.Emission;
+            reflectanceAcc *= color;
 
-				// Specular color to approximate metals that tint reflections
-				color = nearestI.Object.Properties.SpecularColor;
-			}
-			else if (rValue < transmittance * (1.0f - fresnel))
-			{
-				dir = r.Direction.Refract(normal2, N);
+            r.Origin = nearestI.Position + dir * 1E-3f;
+            r.Direction = dir;
+        }
+        else
+        {
+            break;
+        }
+    }
 
-				if (dir == Vector3{ 0.0f, 0.0f, 0.0f })
-				{
-					dir = r.Direction.Reflect(normal); // Total internal reflection
-
-					color = nearestI.Object.Properties.SpecularColor;
-				}
-
-				if (inside)
-				{
-					//float absorbivity = nearestI.Object.Properties.Absorbivity;
-
-					//float dist = (nearestI.Position - r.Origin).Length();
-
-					// TODO: Accurate beer's law
-
-					color *= nearestI.Object.Properties.DiffuseColor;
-				}
-			}
-			else
-			{
-				dir = CosineWeightedInCone(nearestI.Normal, 1.0f, randomGen);
-
-				// Diffuse reflection affected by surface color
-				color = nearestI.Object.Properties.DiffuseColor;
-			}
-
-			colorAcc += reflectanceAcc * nearestI.Object.Properties.Emission;
-			reflectanceAcc *= color;
-
-			r.Origin = nearestI.Position +dir *1E-3f;
-			r.Direction = dir;
-		}
-		else
-		{
-			colorAcc += reflectanceAcc * ambientEmission;
-			break;
-		}
-
-		if ((reflectanceAcc.X <= threshold) && (reflectanceAcc.Y <= threshold) && (reflectanceAcc.Z <= threshold))
-			return colorAcc;
-	}
-
-	return colorAcc;
+    return colorAcc;
 }

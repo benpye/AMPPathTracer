@@ -12,5 +12,6 @@ using namespace concurrency;
 class Scene
 {
 public:
-	static Vector3 TraceRay(Ray r, LCGRandom *randomGen, int bounces, float threshold, Vector3 ambientEmission, array<SceneObject, 1> &objects) restrict(amp, cpu);
+    static V3 TraceRay(Ray r, LCGRandom *randomGen, int bounces, array<SceneObject, 1> &objects) restrict(amp);
+    static V3 TraceRayCPU(Ray r, LCGRandom *randomGen, int bounces, std::vector<SceneObject> objects) restrict(cpu);
 };
